@@ -1,0 +1,46 @@
+
+*** STACKTRACE - START ***
+
+
+# ThreadID: 140091028666112
+File: "/usr/lib64/python2.7/threading.py", line 781, in __bootstrap
+  self.__bootstrap_inner()
+File: "/usr/lib64/python2.7/threading.py", line 808, in __bootstrap_inner
+  self.run()
+File: "/usr/lib64/python2.7/threading.py", line 761, in run
+  self.__target(*self.__args, **self.__kwargs)
+File: "/usr/lib64/python2.7/multiprocessing/queues.py", line 250, in _feed
+  nwait()
+File: "/usr/lib64/python2.7/threading.py", line 339, in wait
+  waiter.acquire()
+
+# ThreadID: 140091109545728
+File: "/usr/lib64/python2.7/threading.py", line 781, in __bootstrap
+  self.__bootstrap_inner()
+File: "/usr/lib64/python2.7/threading.py", line 808, in __bootstrap_inner
+  self.run()
+File: "/usr/lib64/python2.7/threading.py", line 761, in run
+  self.__target(*self.__args, **self.__kwargs)
+File: "bot.py", line 71, in __write
+  data = self.input_queue.get()
+File: "/usr/lib64/python2.7/multiprocessing/queues.py", line 117, in get
+  res = self._recv()
+
+# ThreadID: 140091129001728
+File: "/usr/lib64/python2.7/threading.py", line 781, in __bootstrap
+  self.__bootstrap_inner()
+File: "/usr/lib64/python2.7/threading.py", line 808, in __bootstrap_inner
+  self.run()
+File: "/usr/lib64/python2.7/threading.py", line 761, in run
+  self.__target(*self.__args, **self.__kwargs)
+File: "/home/snail/public_html/bot/python/bot/proc.py", line 10, in proc
+  for filename, lineno, name, line in traceback.extract_stack(stack):
+
+# ThreadID: 140091191142144
+File: "bot.py", line 77, in <module>
+  Connection("hashbang.sh", 7777, Bot).main_loop()
+File: "bot.py", line 48, in main_loop
+  data = self.sock.recv(1024)
+
+*** STACKTRACE - END ***
+
