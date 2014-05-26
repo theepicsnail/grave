@@ -16,8 +16,13 @@ class Connection(object):
         self.sock = None
         self.output_queue = Queue(100)
         self.input_queue = Queue(100)
-
         self.reader = QueueReader(self.input_queue, self.__send)
+
+    def __del__(self):
+        self.tearDown()
+
+    def tearDown(self):
+        self.reader.end()
 
     def connect(self, host, port):
         self.sock = socket.socket()
