@@ -4,25 +4,6 @@ from queuereader import QueueReader
 from irc import parse_message
 import threading
 
-class QueueReader(object):
-    def __init__(self, queue, callback):
-        self.queue = queue
-        self.callback = callback
-        self.thread = threading.Thread(target=self.__read)
-        self.running = False
-
-    def __read(self):
-        self.running = True
-        while self.running:
-            val = self.queue.get()
-            if self.running:
-                self.callback(val)
-
-    def __del__(self):
-        self.running = False
-        self.queue.put(None)
-
-
 #Some mixins to make plugins more rich
 from threading import Timer
 class Scheduler(object):
@@ -70,12 +51,21 @@ class Plugin(Scheduler, Shelve, IrcActions):
         self.input_queue = input_queue
         self.output_queue = output_queue
         self.reader = QueueReader(input_queue, self.on_raw)
+        print "Plugin set_pipes"
+
+    def __del__(self):
+        print "Plugin del"
+        super(Plugin).__del__()
 
     def tearDown(self):
+        print "Plugin tearDown"
         super(Plugin, self).tearDown()
-        del self.reader
+        print "Before delete", self.reader
+        self.reader.end()
+        print "After delete"
 
     def send_raw(self, line):
+        print "plugin send_raw", line
         try:
             self.output_queue.put(line, timeout=1)
         except:
@@ -91,7 +81,7 @@ class Plugin(Scheduler, Shelve, IrcActions):
 
     def on_raw(self, raw_line):
         """Each line the bot gives this plugin enters here"""
-        pass
+        print "plugin on_raw"
 
 #Convenience subclass
 class SimplePlugin(Plugin):
@@ -103,11 +93,14 @@ class SimplePlugin(Plugin):
     """
     def __init__(self, *args, **kwargs):
         super(SimplePlugin, self).__init__(*args, **kwargs)
+        print "simple plugin init", args, kwargs
         self.__command_prefix = type(self).__name__.lower()
 
     def on_raw(self, raw_line):
+        print "simple plugin on_raw"
         super(SimplePlugin, self).on_raw(raw_line)
         prefix, command, args = parse_message(raw_line)
+        print
         if command != 'PRIVMSG':
             return
 
