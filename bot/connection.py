@@ -1,9 +1,11 @@
-import multiprocessing
+"""
+Connection module.
+This module kicks off the bot class.
+"""
 import socket
-from irc import *
-from multiprocessing import Queue
+from irc import parse_message
+from multiprocessing import Queue, Process
 import threading
-import sys
 import bot
 
 class Connection(object):
@@ -17,15 +19,17 @@ class Connection(object):
         self.thread2.start()
 
     def start_consumer(self):
+        """ Start up the bot process. """
         global bot
         bot = reload(bot)
-        self.process = multiprocessing.Process(target = bot.Bot,
+        self.process = Process(target = bot.Bot,
             args=(self.output_queue, self.input_queue))
         self.process.start()
 
     def main_loop(self):
         self.start_consumer()
-        b = ""
+        irc_buffer = ""
+        print "Registering"
         self.sock.send("NICK testBot\r\nUSER a b c d :e\r\n")
         while True:
             data = self.sock.recv(1024)
@@ -33,18 +37,24 @@ class Connection(object):
                 self.sock.close()
                 return
 
-            b += data
+            irc_buffer += data
 
-            lines = b.split("\r\n")
-            b=lines[-1]
+            lines = irc_buffer.split("\r\n")
+            irc_buffer = lines[-1]
             for msg in lines[:-1]:
-                if msg.startswith(":snail!") and ("NOTICE" in msg) and msg.endswith(":restart"):
+                print "loop:",msg
+                if msg.startswith(":snail!") and\
+                        ("NOTICE" in msg) and\
+                        msg.endswith(":restart"):
                     self.output_queue.put(None)
                     self.process.join(1)
                     self.process.terminate()
                     self.start_consumer()
 
-                self.output_queue.put(msg.strip())
+                if msg.startswithith("PING"):
+                    self.input_queue.put(msg.replace("I", "O"))
+
+                self.output_queue.put(parse_message(msg.strip()))
 
     def __write(self):
         while True:
@@ -52,6 +62,3 @@ class Connection(object):
             self.sock.send(data + "\r\n")
 
 
-if __name__=="__main__":
-    multiprocessing.freeze_support()
-    Connection("hashbang.sh", 7777).main_loop()

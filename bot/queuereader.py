@@ -11,7 +11,9 @@ class QueueReader(object):
     def __read(self):
         self.running = True
         while self.running:
+            print "Waiting..."
             val = self.queue.get()
+            print "... got:" , val
             if self.running:
                 self.callback(val)
 

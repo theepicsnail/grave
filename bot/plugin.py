@@ -3,6 +3,7 @@ import shelve
 from queuereader import QueueReader
 from irc import parse_message
 import threading
+from event import Event
 
 #Some mixins to make plugins more rich
 from threading import Timer
@@ -114,6 +115,4 @@ class SimplePlugin(Plugin):
         self.msg(event.location, "No usage for !{} provided.".format(
             self.__command_prefix))
 
-from collections import namedtuple
-Event = namedtuple('Event', ['message', 'location', 'sender'])
 
