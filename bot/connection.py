@@ -18,7 +18,7 @@ class Connection(object):
         self.output_queue = Queue(100)
         self.input_queue = Queue(100)
 
-        QueueReader(self.input_queue, self.__send)
+        self.reader = QueueReader(self.input_queue, self.__send)
 
     def __send(self, msg):
         self.sock.send(msg + "\r\n")
@@ -34,13 +34,19 @@ class Connection(object):
     def main_loop(self):
         self.start_consumer()
         irc_buffer = ""
+        data = ""
         print "Registering"
         self.sock.send("NICK testBot\r\nUSER a b c d :e\r\n")
         while True:
-            data = self.sock.recv(1024)
-            if not data:
-                self.sock.close()
-                return
+            try:
+                data = self.sock.recv(1024)
+            except:
+                data = ""
+            finally:
+                if not data:
+                    self.reader.end()
+                    self.sock.close()
+                    return
 
             irc_buffer += data
 
