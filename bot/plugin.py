@@ -3,7 +3,9 @@ import shelve
 from queuereader import QueueReader
 from irc import parse_message
 import threading
-from event import Event
+
+from collections import namedtuple
+Event = namedtuple('Event', ['message', 'location', 'sender'])
 
 #Some mixins to make plugins more rich
 from threading import Timer
