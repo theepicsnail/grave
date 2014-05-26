@@ -62,7 +62,7 @@ class Connection(object):
                     self.process.terminate()
                     self.start_consumer()
 
-                if msg.startswithith("PING"):
+                if msg.startswith("PING"):
                     self.input_queue.put(msg.replace("I", "O"))
 
                 self.output_queue.put(parse_message(msg.strip()))
