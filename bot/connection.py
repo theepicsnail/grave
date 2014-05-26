@@ -7,16 +7,21 @@ from irc import parse_message
 from multiprocessing import Queue, Process
 import threading
 import bot
+from queuereader import QueueReader
 
 class Connection(object):
+
     def __init__(self, host, port):
-        sock = socket.socket()
-        sock.connect((host, port))
-        self.sock = sock
-        self.thread2 = threading.Thread(target = self.__write)
+        self.sock = socket.socket()
+        self.sock.connect((host, port))
+
         self.output_queue = Queue(100)
         self.input_queue = Queue(100)
-        self.thread2.start()
+
+        QueueReader(self.input_queue, self.__send)
+
+    def __send(self, msg):
+        self.sock.send(msg + "\r\n")
 
     def start_consumer(self):
         """ Start up the bot process. """
@@ -55,10 +60,4 @@ class Connection(object):
                     self.input_queue.put(msg.replace("I", "O"))
 
                 self.output_queue.put(parse_message(msg.strip()))
-
-    def __write(self):
-        while True:
-            data = self.input_queue.get()
-            self.sock.send(data + "\r\n")
-
 
