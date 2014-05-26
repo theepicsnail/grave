@@ -38,21 +38,17 @@ class Connection(object):
             lines = b.split("\r\n")
             b=lines[-1]
             for msg in lines[:-1]:
-                print >>sys.stderr, ">>%s" % msg.strip()
                 if msg.startswith(":snail!") and ("NOTICE" in msg) and msg.endswith(":restart"):
-                    print >>sys.stderr, "restarting"
                     self.output_queue.put(None)
                     self.process.join(1)
                     self.process.terminate()
                     self.start_consumer()
-                    print >>sys.stderr, "restarted"
 
                 self.output_queue.put(msg.strip())
 
     def __write(self):
         while True:
             data = self.input_queue.get()
-            print >>sys.stderr, "<<%s" % data
             self.sock.send(data + "\r\n")
 
 

@@ -9,7 +9,6 @@ class Alarm(SimplePlugin):
     EXAMPLE = "!alarm 3 seconds#Example message"
 
     def setUp(self):
-        print "setup"
         super(Alarm, self).setUp()
 
         self.alarms = self.open_shelve()
@@ -22,13 +21,11 @@ class Alarm(SimplePlugin):
         self.checker = self.schedule(self.check_alarms, seconds=1, repeat=True)
 
     def tearDown(self):
-        print "teardown"
         super(Alarm, self).tearDown()
         self.alarms.close()
         self.checker.cancel()
 
     def parse_time(self, time):
-        print "parse_time"
         return mktime(self.parser.parse(time)[0])
 
     def check_alarms(self):
@@ -48,7 +45,6 @@ class Alarm(SimplePlugin):
 
     def triggered(self, event):
         super(Alarm, self).triggered(event)
-        print "triggered", event
         if "#" not in event.message:
             self.msg(event.location, Alarm.EXAMPLE)
             return
@@ -66,7 +62,6 @@ class Alarm(SimplePlugin):
 
     def usage(self, event):
         super(Alarm, self).usage(event)
-        print "usage"
         self.msg(event.location, Alarm.EXAMPLE)
 
 

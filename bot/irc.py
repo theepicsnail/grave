@@ -1,7 +1,6 @@
 """ RFC constants """
 
 def parse_message(irc_line):
-    print "parse", irc_line
     assert(len(irc_line))
 
     # Twisteds parser

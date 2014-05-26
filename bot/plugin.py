@@ -51,21 +51,12 @@ class Plugin(Scheduler, Shelve, IrcActions):
         self.input_queue = input_queue
         self.output_queue = output_queue
         self.reader = QueueReader(input_queue, self.on_raw)
-        print "Plugin set_pipes"
-
-    def __del__(self):
-        print "Plugin del"
-        super(Plugin).__del__()
 
     def tearDown(self):
-        print "Plugin tearDown"
         super(Plugin, self).tearDown()
-        print "Before delete", self.reader
         self.reader.end()
-        print "After delete"
 
     def send_raw(self, line):
-        print "plugin send_raw", line
         try:
             self.output_queue.put(line, timeout=1)
         except:
@@ -81,7 +72,7 @@ class Plugin(Scheduler, Shelve, IrcActions):
 
     def on_raw(self, raw_line):
         """Each line the bot gives this plugin enters here"""
-        print "plugin on_raw"
+        pass
 
 #Convenience subclass
 class SimplePlugin(Plugin):
@@ -93,14 +84,11 @@ class SimplePlugin(Plugin):
     """
     def __init__(self, *args, **kwargs):
         super(SimplePlugin, self).__init__(*args, **kwargs)
-        print "simple plugin init", args, kwargs
         self.__command_prefix = type(self).__name__.lower()
 
     def on_raw(self, raw_line):
-        print "simple plugin on_raw"
         super(SimplePlugin, self).on_raw(raw_line)
         prefix, command, args = parse_message(raw_line)
-        print
         if command != 'PRIVMSG':
             return
 
