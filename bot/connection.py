@@ -11,17 +11,18 @@ from queuereader import QueueReader
 
 class Connection(object):
 
-    def __init__(self, *a, **b):
-        super(Connection, self).__init__(*a, **b)
+    def __init__(self):
         self.sock = None
         self.output_queue = Queue(100)
         self.input_queue = Queue(100)
         self.reader = QueueReader(self.input_queue, self.__send)
 
     def __del__(self):
+        print "Connection del"
         self.tearDown()
 
     def tearDown(self):
+        print "Connection tearDown"
         self.reader.end()
 
     def connect(self, host, port):
@@ -44,7 +45,8 @@ class Connection(object):
         irc_buffer = ""
         data = ""
         print "Registering"
-        self.sock.send("NICK testBot\r\nUSER a b c d :e\r\n")
+        self.input_queue.put("NICK testBot")
+        self.input_queue.put("USER a b c d :e")
         while True:
             try:
                 data = self.sock.recv(1024)
