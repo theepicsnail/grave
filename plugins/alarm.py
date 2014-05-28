@@ -9,8 +9,6 @@ class Alarm(SimplePlugin):
     EXAMPLE = "!alarm 3 seconds#Example message"
 
     def setUp(self):
-        super(Alarm, self).setUp()
-
         self.alarms = self.open_shelve()
         if 'queue' not in self.alarms:
             self.alarms['queue'] = []

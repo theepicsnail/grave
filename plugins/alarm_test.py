@@ -1,7 +1,8 @@
 from bot.testing import SimpleTest
-from plugins import alarm
+from plugins.alarm import Alarm
 
-class Alarm(alarm.Alarm, SimpleTest):
+class Test(SimpleTest):
+    plugins = [Alarm]
 
     def testEndToEnd(self):
         self.simulate_msg("user", "#room", "!alarm now#msg")
@@ -15,4 +16,6 @@ class Alarm(alarm.Alarm, SimpleTest):
     def _testAutoExample(self):
         self.simulate_msg("user", "#room", "!alarm adfadf")
         self.assert_msg("#room", Alarm.EXAMPLE)
+
+
 

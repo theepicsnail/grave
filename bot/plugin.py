@@ -31,14 +31,6 @@ class Scheduler(object):
         c.start_timer(Timer(seconds, wrapper))
         return c
 
-class Shelve(object):
-    def open_shelve(self, name = ""):
-        pkl_path = "data/" + self.__class__.__name__
-        if name:
-            pkl_path += "." + name
-
-        return shelve.open(pkl_path)
-
 class IrcActions(object):
     def msg(self, location, msg):
         self.send_raw("PRIVMSG {} {}".format(location, msg))
@@ -47,17 +39,53 @@ class IrcActions(object):
         raise NotImplementedError(
             "send_raw must be defined to perform IrcActions")
 
+
+# Shelve providers
+# fake_shelve - in memory shelve
+from collections import defaultdict
+class FakeShelve(dict):
+    def close(self):
+        pass
+    def sync(self):
+        pass
+__fake_shelves = defaultdict(FakeShelve)
+def fake_shelve(name):
+    return __fake_shelves[name]
+
+# disk_shelve - on disk shelve
+def disk_shelve(name):
+    return shelve.open("data/" + name)
+
+
 #Main pluin class
-class Plugin(Scheduler, Shelve, IrcActions):
+class Plugin(Scheduler, IrcActions):
+
+    def __init__(self, *args, **kwargs):
+        super(Plugin, self).__init__(*args, **kwargs)
+        # Default factories
+        self.set_shelve_factory(disk_shelve)
+
+    # Shelve utility
+    def set_shelve_factory(self, shelve_factory):
+        self.shelve_factory = shelve_factory
+
+    def open_shelve(self, name=""):
+        pkl_ident = self.__class__.__name__
+        if name:
+            pkl_ident += "." + name
+        return self.shelve_factory(pkl_ident)
+
+    def setUp(self):
+        """Called once the bot is ready to load this plugin"""
+        pass
+
+    def tearDown(self):
+        self.reader.end()
 
     def set_pipes(self, input_queue, output_queue):
         self.input_queue = input_queue
         self.output_queue = output_queue
         self.reader = QueueReader(input_queue, self.on_raw)
-
-    def tearDown(self):
-        super(Plugin, self).tearDown()
-        self.reader.end()
 
     def send_raw(self, line):
         try:
@@ -67,11 +95,6 @@ class Plugin(Scheduler, Shelve, IrcActions):
             print "line:", line
             import traceback, sys
             traceback.print_exc(file=sys.stdout)
-
-
-    def setUp(self):
-        """Called once the bot is ready to load this plugin"""
-        pass
 
     def on_raw(self, raw_line):
         """Each line the bot gives this plugin enters here"""
@@ -87,16 +110,17 @@ class SimplePlugin(Plugin):
     """
     def __init__(self, *args, **kwargs):
         super(SimplePlugin, self).__init__(*args, **kwargs)
-        self.__command_prefix = type(self).__name__.lower()
+        self.command_prefix = type(self).__name__.lower()
+        print "init ", self
 
     def on_raw(self, raw_line):
         super(SimplePlugin, self).on_raw(raw_line)
         prefix, command, args = parse_message(raw_line)
         if command != 'PRIVMSG':
             return
-
+        print "on_raw", self
         msg = args[-1]
-        if not msg[1:].startswith(self.__command_prefix):
+        if not msg[1:].startswith(self.command_prefix):
             return
 
         if ' ' in msg:
@@ -115,6 +139,6 @@ class SimplePlugin(Plugin):
 
     def usage(self, event):
         self.msg(event.location, "No usage for !{} provided.".format(
-            self.__command_prefix))
+            self.command_prefix))
 
 
