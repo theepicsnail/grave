@@ -24,7 +24,6 @@ class Bot(object):
             self.tearDown()
             return
 
-        print "Bot handle line:", line
         prefix, command, args = parse_message(line)
 
 

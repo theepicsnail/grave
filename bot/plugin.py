@@ -88,13 +88,7 @@ class Plugin(Scheduler, IrcActions):
         self.reader = QueueReader(input_queue, self.on_raw)
 
     def send_raw(self, line):
-        try:
-            self.output_queue.put(line, timeout=1)
-        except:
-            print type(self), "send_raw had an exception on:"
-            print "line:", line
-            import traceback, sys
-            traceback.print_exc(file=sys.stdout)
+        self.output_queue.put(line, timeout=1)
 
     def on_raw(self, raw_line):
         """Each line the bot gives this plugin enters here"""
@@ -111,14 +105,12 @@ class SimplePlugin(Plugin):
     def __init__(self, *args, **kwargs):
         super(SimplePlugin, self).__init__(*args, **kwargs)
         self.command_prefix = type(self).__name__.lower()
-        print "init ", self
 
     def on_raw(self, raw_line):
         super(SimplePlugin, self).on_raw(raw_line)
         prefix, command, args = parse_message(raw_line)
         if command != 'PRIVMSG':
             return
-        print "on_raw", self
         msg = args[-1]
         if not msg[1:].startswith(self.command_prefix):
             return

@@ -18,11 +18,9 @@ class Connection(object):
         self.reader = QueueReader(self.input_queue, self.__send)
 
     def __del__(self):
-        print "Connection del"
         self.tearDown()
 
     def tearDown(self):
-        print "Connection tearDown"
         self.reader.end()
 
     def connect(self, host, port):
@@ -44,7 +42,6 @@ class Connection(object):
         self.start_consumer()
         irc_buffer = ""
         data = ""
-        print "Registering"
         self.input_queue.put("NICK testBot")
         self.input_queue.put("USER a b c d :e")
         while True:
@@ -63,7 +60,6 @@ class Connection(object):
             lines = irc_buffer.split("\r\n")
             irc_buffer = lines[-1]
             for msg in lines[:-1]:
-                print "loop:",msg
                 if msg.startswith(":snail!") and\
                         ("NOTICE" in msg) and\
                         msg.endswith(":restart"):
