@@ -1,7 +1,0 @@
->>:og.udderweb.com NOTICE AUTH :*** Looking up your hostname...
-:og.udderweb.com NOTICE AUTH :*** Found your hostname (cached)
-
-<<NICK testBot
-<<USER a b c d :e
- >>PING :78218AFE
-
