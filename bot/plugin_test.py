@@ -15,7 +15,7 @@ class SchedulerTest(unittest.TestCase):
 
         self.sched.schedule(callback, .1)
         val.append(3)
-        time.sleep(.1)
+        time.sleep(.2)
         self.assertEqual(val, [1, 3, 2])
 
 
