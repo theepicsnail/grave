@@ -42,7 +42,6 @@ class Alarm(SimplePlugin):
         self.alarms['queue'] = queue
 
     def triggered(self, event):
-        super(Alarm, self).triggered(event)
         if "#" not in event.message:
             self.msg(event.location, Alarm.EXAMPLE)
             return
@@ -59,7 +58,6 @@ class Alarm(SimplePlugin):
         self.msg(event.location, Alarm.SCHEDULED)
 
     def usage(self, event):
-        super(Alarm, self).usage(event)
         self.msg(event.location, Alarm.EXAMPLE)
 
 
