@@ -9,11 +9,11 @@ class Test(SimpleTest):
         self.assert_msg("#room", Alarm.SCHEDULED)
         self.assert_msg("#room", "user: msg")
 
-    def _testUsage(self):
+    def testUsage(self):
         self.simulate_msg("user", "#room", "?alarm")
         self.assert_msg("#room", Alarm.EXAMPLE)
 
-    def _testAutoExample(self):
+    def testAutoExample(self):
         self.simulate_msg("user", "#room", "!alarm adfadf")
         self.assert_msg("#room", Alarm.EXAMPLE)
 

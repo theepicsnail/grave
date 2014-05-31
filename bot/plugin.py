@@ -1,6 +1,7 @@
 #pylint: disable=C0111
 import shelve
 from queuereader import QueueReader
+from scheduler import Scheduler
 from irc import parse_message
 import threading
 
@@ -8,29 +9,6 @@ from collections import namedtuple
 Event = namedtuple('Event', ['message', 'location', 'sender'])
 
 #Some mixins to make plugins more rich
-from threading import Timer
-class Scheduler(object):
-    def schedule(self, callback, seconds=0, repeat=False):
-        class Canceller(object):
-            def start_timer(self, timer):
-                self.timer = timer
-                timer.start()
-
-            def cancel(self):
-                self.timer.cancel()
-
-        c = Canceller()
-
-        # Create a wrapper with the loop logic
-        def wrapper():
-            if repeat:
-                c.start_timer(Timer(seconds, wrapper))
-            callback()
-
-        # Start it
-        c.start_timer(Timer(seconds, wrapper))
-        return c
-
 class IrcActions(object):
     def msg(self, location, msg):
         self.send_raw("PRIVMSG {} {}".format(location, msg))
