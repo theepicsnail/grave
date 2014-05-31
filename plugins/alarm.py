@@ -1,10 +1,8 @@
 from bot.plugin import SimplePlugin
-from bot.logger import logged
 from time import time as cur_time
 from time import mktime
 import parsedatetime.parsedatetime as pdt
 
-@logged
 class Alarm(SimplePlugin):
     # Resources
     SCHEDULED = "Scheduled alarm."
