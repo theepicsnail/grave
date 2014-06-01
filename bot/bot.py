@@ -1,6 +1,8 @@
 from irc import parse_message
 from queuereader import QueueReader
+from logger import logged
 
+@logged
 class Bot(object):
 
     def __init__(self, input_queue, output_queue):
