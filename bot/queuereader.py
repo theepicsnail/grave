@@ -3,7 +3,8 @@ Read from a multiprocessing queue, and call a callback with the
 retreived data.
 """
 import threading
-
+from logger import logged
+@logged
 class QueueReader(object):
     """ Async reader for multiprocessing.queues.
     Given a callback, call the callback with each item pulled from the queue.
@@ -19,9 +20,12 @@ class QueueReader(object):
         """ Main loop, started on another thread.
         Consume the queue, calling the callback on each item"""
         while self.running:
-            val = self.queue.get()
+            val = self.get()
             if self.running:
                 self.callback(val)
+
+    def get(self):
+        return self.queue.get()
 
     def end(self):
         """ Shut down the queue reader. """
