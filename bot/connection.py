@@ -14,63 +14,91 @@ class Connection(object):
 
     def __init__(self):
         self.sock = None
-        self.output_queue = Queue(100)
-        self.input_queue = Queue(100)
-        self.reader = QueueReader(self.input_queue, self.__send)
+        self.running = True
+        self.reader = None
+
+    def handleDisconnect(self):
+        # Replace this with reconnect logic
+        self.tearDown()
 
     def __del__(self):
         self.tearDown()
 
     def tearDown(self):
-        self.reader.end()
+        self.running = False
+        self.sock.close()
+        self.stop_consumer()
 
     def connect(self, host, port):
         self.sock = socket.socket()
         self.sock.connect((host, port))
 
-    def __send(self, msg):
-        self.sock.send(msg + "\r\n")
+    def send_data(self, msg):
+        try:
+            self.sock.send(msg + "\r\n")
+        except:
+            self.handleDisconnect()
 
     def start_consumer(self):
         """ Start up the bot process. """
+        # I'm unsure if we can reuse the same queues.
+        self.output_queue = Queue(100)
+        self.input_queue = Queue(100)
+        self.reader = QueueReader(self.input_queue, self.send_data)
+
         global bot
         bot = reload(bot)
         self.process = Process(target = bot.Bot,
             args=(self.output_queue, self.input_queue))
         self.process.start()
 
+    def stop_consumer(self):
+        self.output_queue.put(None)
+        self.process.join(1)
+        self.process.terminate()
+        if self.reader:
+            self.reader.end()
+
+    def perform_handshake(self):
+        self.input_queue.put("NICK testBot")
+        self.input_queue.put("USER a b c d :e")
+
+    def receive_data(self):
+        try:
+            data = self.sock.recv(1024)
+        except:
+            data = ""
+        finally:
+            if not data:
+                self.tearDown()
+
+        return data
+
     def main_loop(self):
         self.start_consumer()
         irc_buffer = ""
         data = ""
-        self.input_queue.put("NICK testBot")
-        self.input_queue.put("USER a b c d :e")
-        while True:
-            try:
-                data = self.sock.recv(1024)
-            except:
-                data = ""
-            finally:
-                if not data:
-                    self.reader.end()
-                    self.sock.close()
-                    return
-
-            irc_buffer += data
-
+        self.perform_handshake()
+        while self.running:
+            irc_buffer += self.receive_data()
             lines = irc_buffer.split("\r\n")
             irc_buffer = lines[-1]
+
             for msg in lines[:-1]:
-                if msg.startswith(":snail!") and\
-                        ("NOTICE" in msg) and\
-                        msg.endswith(":restart"):
-                    self.output_queue.put(None)
-                    self.process.join(1)
-                    self.process.terminate()
-                    self.start_consumer()
+                self.process_line(msg)
 
-                if msg.startswith("PING"):
-                    self.input_queue.put(msg.replace("I", "O"))
+    def process_line(self, msg):
+        if msg.startswith(":snail!") and\
+                ("NOTICE" in msg) and\
+                msg.endswith(":restart"):
+            self.stop_consumer()
+            self.start_consumer()
 
-                self.output_queue.put(parse_message(msg.strip()))
+        if msg.startswith("PING"):
+            self.input_queue.put(msg.replace("I", "O"))
+
+        self.broadcast(msg.strip())#parse_message(msg.strip()))
+
+    def broadcast(self, irc_message):
+        self.output_queue.put(irc_message)
 
