@@ -1,6 +1,7 @@
 from irc import parse_message
 from queuereader import QueueReader
 from logger import logged
+from threading import Event
 
 @logged
 class Bot(object):
@@ -10,6 +11,7 @@ class Bot(object):
         self.pending_rpcs = []
         self.output_queue = output_queue
         self.input_queue = input_queue
+        self.event = Event()
         self.setUp()
         self.mainloop()
 
@@ -22,6 +24,7 @@ class Bot(object):
         self.send("PRIVMSG #test :Stopped")
         self.reader.end()
         self.running = False
+        self.event.set()
 
     def send(self, msg):
         self.output_queue.put(msg)
@@ -34,7 +37,7 @@ class Bot(object):
         print "Bot:", prefix, command, args
 
     def mainloop(self):
-        import time
         # Deal with plugin io here.
         while self.running:
-            time.sleep(1)
+            self.event.wait()
+            self.event.clear()
