@@ -27,14 +27,11 @@ class Bot(object):
         self.output_queue.put(msg)
 
     def handle_line(self, line):
-        print "Handle line:", line
         if line is None:
             self.tearDown()
             return
-        prefix, command, args = line
+        prefix, command, args = parse_message(line)
         print "Bot:", prefix, command, args
-        import sys
-        sys.stdout.flush()
 
     def mainloop(self):
         import time
