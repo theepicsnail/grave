@@ -1,8 +1,9 @@
 from irc import parse_message
 from queuereader import QueueReader
-from logger import logged
+from logger import logged, loadLogConfig
 from threading import Event
 
+from logging import getLogger
 @logged
 class Bot(object):
 
@@ -34,6 +35,12 @@ class Bot(object):
             self.tearDown()
             return
         prefix, command, args = parse_message(line)
+        if prefix.startswith("snail!") and command == "NOTICE":
+            if args[-1] == "log":
+                print "Reloading config"
+                loadLogConfig()
+                getLogger().warn("WARN")
+                getLogger().debug("DEBUG")
         print "Bot:", prefix, command, args
 
     def mainloop(self):

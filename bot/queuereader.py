@@ -3,8 +3,6 @@ Read from a multiprocessing queue, and call a callback with the
 retreived data.
 """
 import threading
-from logger import logged
-@logged
 class QueueReader(object):
     """ Async reader for multiprocessing.queues.
     Given a callback, call the callback with each item pulled from the queue.

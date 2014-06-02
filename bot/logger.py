@@ -6,7 +6,12 @@ import logging.config
 import threading
 import os
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
-logging.config.fileConfig("logging/logging.cfg")
+from logging import getLogger
+
+def loadLogConfig():
+    logging.config.fileConfig("logging/logging.cfg")
+    print "Loaded logging config"
+loadLogConfig()
 
 def logged(cls):
     for attr in cls.__dict__:

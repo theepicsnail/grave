@@ -8,8 +8,7 @@ from multiprocessing import Queue, Process
 import threading
 import bot
 from queuereader import QueueReader
-from logger import logged
-@logged
+from logger import getLogger
 class Connection(object):
 
     def __init__(self):
