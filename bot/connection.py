@@ -45,12 +45,14 @@ class Connection(object):
         self.input_queue = Queue(100)
         self.reader = QueueReader(self.input_queue, self.send_data)
 
-        global bot
-        bot = reload(bot)
-        self.process = Process(target = bot.Bot,
-            args=(self.output_queue, self.input_queue))
-        self.process.start()
-
+        try:
+            global bot
+            bot = reload(bot)
+            self.process = Process(target = bot.Bot,
+                args=(self.output_queue, self.input_queue))
+            self.process.start()
+        except:
+            getLogger().exception("Failed to start consumer")
     def stop_consumer(self):
         self.output_queue.put(None)
         self.process.join(1)
