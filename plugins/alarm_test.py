@@ -1,4 +1,4 @@
-from bot.testing import SimpleTest
+from grave.testing import SimpleTest
 from plugins.alarm import Alarm
 
 class Test(SimpleTest):

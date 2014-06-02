@@ -1,4 +1,4 @@
-from bot.plugin import SimplePlugin
+from grave.plugin import SimplePlugin
 from time import time as cur_time
 from time import mktime
 import parsedatetime.parsedatetime as pdt

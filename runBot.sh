@@ -1,2 +1,2 @@
 #!/bin/bash
-python -m bot
+python -m grave
