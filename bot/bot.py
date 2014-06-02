@@ -6,10 +6,12 @@ from logger import logged
 class Bot(object):
 
     def __init__(self, input_queue, output_queue):
+        self.running = True
         self.pending_rpcs = []
         self.output_queue = output_queue
         self.input_queue = input_queue
         self.setUp()
+        self.mainloop()
 
     def setUp(self):
         self.send("JOIN #test")
@@ -19,6 +21,7 @@ class Bot(object):
     def tearDown(self):
         self.send("PRIVMSG #test :Stopped")
         self.reader.end()
+        self.running = False
 
     def send(self, msg):
         self.output_queue.put(msg)
@@ -33,3 +36,8 @@ class Bot(object):
         import sys
         sys.stdout.flush()
 
+    def mainloop(self):
+        import time
+        # Deal with plugin io here.
+        while self.running:
+            time.sleep(1)
