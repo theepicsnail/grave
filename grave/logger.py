@@ -31,6 +31,7 @@ def logged(cls):
 #    return logging.getLogger()#log_name)
 
 
+import traceback
 def _log_calls(method):
     cls_name = method.im_class.__name__
     method_name = cls_name+"."+method.__name__
@@ -38,6 +39,11 @@ def _log_calls(method):
     @wraps(method)
     def wrapped(*args, **kwargs):
         logger = getLogger()
+
+        # Override loggers 'findCaller'
+        caller = traceback.extract_stack()[-2][:3]
+        logger.findCaller = lambda:caller
+
         pos_args = map(str, args)
         named_args = map("{}={}".format, kwargs)
         arg_str = ", ".join(pos_args + named_args)
