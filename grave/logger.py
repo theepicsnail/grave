@@ -13,6 +13,19 @@ def loadLogConfig():
     print "Loaded logging config"
 loadLogConfig()
 
+    global loaded
+    loaded = True
+    getLogger().debug("debug")
+    getLogger().info("info")
+    getLogger().warn("warn")
+    getLogger().error("error")
+    getLogger().critical("critical")
+    try:
+        def exception():
+            raise Exception()
+        exception()
+    except:
+        getLogger().exception("exception")
 def logged(cls):
     for attr in cls.__dict__:
         if callable(getattr(cls, attr)):
