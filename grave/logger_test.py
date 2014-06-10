@@ -33,10 +33,11 @@ class OutputLogger(object):
 
 OUTPUT_LOGGER = OutputLogger() # Must be started before logger is imported.
 import logger
+logger.loadLogConfig()
 
 class TestLogger(unittest.TestCase):
     def setUp(self):
-        self.log = logger.get_logger()
+        self.log = logger.getLogger()
 
     def produce_logs(self):
         with OUTPUT_LOGGER:
@@ -61,7 +62,7 @@ class TestLogger(unittest.TestCase):
         self.produce_logs() # produce 5 traces with 'root'
         self.assertEqual(OUTPUT_LOGGER.getStdout().count('root'), 5)
 
-        self.log = logger.get_logger('other')
+        self.log = logger.getLogger('other')
         self.produce_logs() # produce 5 traces with 'other'
         self.assertEqual(OUTPUT_LOGGER.getStdout().count('other'), 5)
 
