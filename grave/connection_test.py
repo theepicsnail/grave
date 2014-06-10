@@ -41,15 +41,6 @@ class TestConnection(unittest.TestCase):
     def tearDown(self):
         self.connection.tearDown()
 
-    def testConstructorStartsReader(self):
-        c = self.connection
-
-        # Fake an irc message being sent (e.g. by a plugin)
-        c.input_queue.put("PING foo")
-
-        # The data should have made it to the socket, with trailing \r\n
-        self.assertEqual(c.sock.get(), "PING foo\r\n")
-
     def testMainLoopStops(self):
         t = Thread(target = self.connection.main_loop)
         t.start()
