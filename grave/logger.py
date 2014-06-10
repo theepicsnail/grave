@@ -59,6 +59,7 @@ class ConsoleFormatter(logging.Formatter):
         }[record.levelname]
 
         record.process_color = self.hashColor(record.process)
+        record.name_color = self.hashColor(record.name)
         record.thread_color = self.hashColor(record.thread)
 
         return super(ConsoleFormatter, self).format(record)
@@ -72,11 +73,12 @@ def loadLogConfig():
     print "Loaded logging config"
     global loaded
     loaded = True
-    getLogger().debug("debug")
-    getLogger().info("info")
-    getLogger().warn("warn")
-    getLogger().error("error")
-    getLogger().critical("critical")
+    logger = getLogger()
+    logger.debug("debug")
+    logger.info("info")
+    logger.warn("warn")
+    logger.error("error")
+    logger.critical("critical")
     try:
         def exception():
             raise Exception()
@@ -111,7 +113,8 @@ def _log_calls(method):
         ts = time.time()
         try:
             logger.debug("[>>] %s" % (call_str))
-            #args[0].logger = logger
+            args[0].logger = logger
+            args[0].log = logger
             ret = method(*args, **kwargs)
             ts2 = time.time()
             logger.debug("[<<] %s => %s (took %.5f seconds)" % (call_str, ret, ts2-ts))
