@@ -28,9 +28,11 @@ class Bot(object):
         self.event.set()
 
     def send(self, msg):
+        self.log.info("Send: " + msg)
         self.output_queue.put(msg)
 
     def handle_line(self, line):
+        self.log.info("Recv: " + line)
         if line is None:
             self.tearDown()
             return
@@ -41,7 +43,6 @@ class Bot(object):
                 loadLogConfig()
                 getLogger().warn("WARN")
                 getLogger().debug("DEBUG")
-        print "Bot:", prefix, command, args
 
     def mainloop(self):
         # Deal with plugin io here.
