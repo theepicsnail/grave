@@ -9,12 +9,17 @@ import threading
 import bot
 from queuereader import QueueReader
 from logger import getLogger
+
+
 class Connection(object):
 
     def __init__(self):
+        self.output_queue = Queue(100)
+        self.input_queue = Queue(100)
         self.sock = None
         self.running = True
         self.reader = None
+        self.log = getLogger()
 
     def handleDisconnect(self):
         # Replace this with reconnect logic
@@ -41,8 +46,6 @@ class Connection(object):
     def start_consumer(self):
         """ Start up the bot process. """
         # I'm unsure if we can reuse the same queues.
-        self.output_queue = Queue(100)
-        self.input_queue = Queue(100)
         self.reader = QueueReader(self.input_queue, self.send_data)
 
         try:
@@ -52,7 +55,8 @@ class Connection(object):
                 args=(self.output_queue, self.input_queue))
             self.process.start()
         except:
-            getLogger().exception("Failed to start consumer")
+            self.log.exception("Failed to start consumer")
+
     def stop_consumer(self):
         self.output_queue.put(None)
         self.process.join(1)
